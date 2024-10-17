@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { CircleCheckBig, CircleX, Pencil, Plus, Trash } from "lucide-react";
 import { useState } from "react";
 
 export default function MovieList({
@@ -10,9 +12,7 @@ export default function MovieList({
 }) {
   const [movieList, setMovieList] = useState(movies);
   const [newMovie, setNewMovie] = useState("");
-  const [hasChanged, setHasChanged] = useState({});
-  const [firstInputChanged, setFirstInputChanged] = useState(false);
-
+  const [hasChanged, setHasChanged] = useState({}); // Track changes for each movie
 
   const handleAddMovie = async () => {
     if (newMovie.trim() === "") return;
@@ -23,20 +23,11 @@ export default function MovieList({
     console.log("Added new movie");
   };
 
-  const handleFirstChange = (id) => {
-    // Function that triggers only on the first input change
-    console.log(`First change detected for movie with ID: ${id}`);
-    setFirstInputChanged(true)
-  };
-
   const handleInputChange = (id, value) => {
-    // If it is the first change, trigger the handleFirstChange function
-    if (!hasChanged[id]) {
-      handleFirstChange(id);
-      setHasChanged({ ...hasChanged, [id]: true }); // Mark this movie as changed
-    }
+    // Mark the movie as changed on first input change
+    setHasChanged({ ...hasChanged, [id]: true });
 
-    // Update the edit state
+    // Update the movieList with the new input value
     setMovieList(
       movieList.map((movie) =>
         movie._id === id ? { ...movie, title: value } : movie
@@ -51,6 +42,7 @@ export default function MovieList({
         movie._id === id ? { ...movie, title: updatedTitle, watched } : movie
       )
     );
+    setHasChanged({ ...hasChanged, [id]: false }); // Reset change tracking after update
     console.log("Updated movie");
   };
 
@@ -61,57 +53,74 @@ export default function MovieList({
   };
 
   return (
-    <div>
-      <h1>Movie List</h1>
-      <input
-        type="text"
-        value={newMovie}
-        onChange={(e) => setNewMovie(e.target.value)}
-        placeholder="Add new movie"
-        className="bg-gray-200 p-2"
-      />
-      <button onClick={handleAddMovie} className="bg-blue-500 text-white p-2">
-        Add
-      </button>
+    <div className="flex flex-col justify-center items-center py-10 mt-4">
+      <h1 className="font-bold text-3xl text-yellow-500">GoldMov</h1>
+      <div className="flex justify-center items-center  gap-4 mt-10">
+        <input
+          type="text"
+          value={newMovie}
+          onChange={(e) => setNewMovie(e.target.value)}
+          placeholder="Add new movie...."
+          className="bg-stone-100 px-4 py-2 rounded-sm"
+        />
+        <Button
+          onClick={handleAddMovie}
+          className="bg-yellow-400 hover:bg-yellow-500 text-white p-2 px-5 "
+        >
+          <Plus />
+          <p>Add</p>
+        </Button>
+      </div>
 
       <ul className="m-10">
         {movieList.map((movie, index) => (
-          <li key={index} className="p-1">
-            <input
-              type="text"
-              value={movie.title}
-              onChange={(e) => handleInputChange(movie._id, e.target.value)}
-              className="bg-gray-100 p-2"
-            />
-{
-  firstInputChanged ?  <button
-              onClick={() => handleUpdateMovie(movie._id, movie.title, movie.watched)}
-              className="bg-yellow-500 text-white p-2 mx-4"
-            >
-              Update
-            </button>
-            : ""
-}
-           
+          <li key={index} className="p-1 flex justify-center items-center gap-1">
+            <div className="flex relative  bg-stone-100  items-center rounded-sm">
+              <input
+                type="text"
+                value={movie.title}
+                onChange={(e) => handleInputChange(movie._id, e.target.value)}
+                className={`p-2 bg-transparent outline-none ${
+                  hasChanged[movie._id] ? "w-[80%]" : ""
+                } `}
+              />
+              {hasChanged[movie._id] ? (
+                <Button
+                  variant="ghost"
+                  onClick={() =>
+                    handleUpdateMovie(movie._id, movie.title, movie.watched)
+                  }
+                  className="p-2 mx-1 z-40 right-0 absolute"
+                >
+                  <Pencil className="text-stone-600"/>
+                </Button>
+              ) : (
+                ""
+              )}
+            </div>
 
-            <button
+            <Button
               onClick={() =>
                 handleUpdateMovie(movie._id, movie.title, !movie.watched)
               }
               className={
                 movie.watched
-                  ? "bg-green-400 text-white p-2 mx-4"
-                  : "bg-red-400 text-black p-2 mx-4"
+                  ? "bg-green-400 text-white p-3 mx-3"
+                  : "bg-red-400 text-white p-3 mx-3"
               }
+              title={movie.watched ? "Mark it not done" : "Mark it done"}
             >
-              {movie.watched ? "Watched" : "Not Watched"}
-            </button>
-            <button
+              {movie.watched ? <CircleCheckBig /> : <CircleX />}
+            </Button>
+
+            <Button
+              variant="ghost"
               onClick={() => handleDeleteMovie(movie._id)}
-              className="bg-red-400 text-white p-2 mx-4"
+              className="bg-stone-100 hover:bg-stone-200 p-3 mx-1"
+              title="Delete"
             >
-              Delete
-            </button>
+              <Trash className="text-red-400" />
+            </Button>
           </li>
         ))}
       </ul>
