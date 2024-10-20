@@ -1,8 +1,8 @@
 import connectToDatabase from "@/lib/mongodb";
 import Movie from "@/models/Movie";
-import MovieList from "./components/MovieList";
+import MovieList from "../components/MovieList";
 
-export const dynamic = 'force-dynamic';  // Use dynamic rendering
+export const dynamic = 'force-dynamic'; // Use dynamic rendering
 
 // Server action: Add a movie
 export async function addMovie(newTitle) {
@@ -29,11 +29,20 @@ export async function deleteMovie(id) {
 // Server component to fetch and pass data to the client
 export default async function HomePage() {
   await connectToDatabase();
+  
+  // Use .lean() to get plain objects, then sanitize them
   const movies = await Movie.find({}).lean();
+
+  // Convert _id to string and remove unwanted fields
+  const sanitizedMovies = movies.map(movie => ({
+    _id: movie._id.toString(),  // Convert ObjectId to string
+    title: movie.title,
+    watched: movie.watched
+  }));
 
   return (
     <MovieList 
-      movies={movies} 
+      movies={sanitizedMovies}  // Pass sanitized movies
       addMovie={addMovie} 
       updateMovie={updateMovie} 
       deleteMovie={deleteMovie} 

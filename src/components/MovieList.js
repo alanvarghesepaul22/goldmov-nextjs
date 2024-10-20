@@ -53,8 +53,9 @@ export default function MovieList({
   };
 
   return (
-    <div className="flex flex-col justify-center items-center py-10 mt-4">
+    <div className="flex flex-col justify-center items-center py-1">
       <h1 className="font-bold text-3xl text-yellow-500">GoldMov</h1>
+      <p className="text-yellow-500/75">Golden movies you can&apos;t skip</p>
       <div className="flex justify-center items-center  gap-4 mt-10">
         <input
           type="text"
@@ -105,8 +106,8 @@ export default function MovieList({
               }
               className={
                 movie.watched
-                  ? "bg-green-400 text-white p-3 mx-3"
-                  : "bg-red-400 text-white p-3 mx-3"
+                  ? "bg-green-400 hover:bg-green-500 text-white p-3 mx-3"
+                  : "bg-red-400 hover:bg-red-500 text-white p-3 mx-3"
               }
               title={movie.watched ? "Mark it not done" : "Mark it done"}
             >
